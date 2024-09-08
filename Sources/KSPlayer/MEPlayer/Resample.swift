@@ -272,7 +272,7 @@ public class AudioDescriptor: Equatable {
 //    static let defaultValue = AudioDescriptor()
     public let sampleRate: Int32
     public private(set) var audioFormat: AVAudioFormat
-    fileprivate(set) var channel: AVChannelLayout
+    public fileprivate(set) var channel: AVChannelLayout
     fileprivate let sampleFormat: AVSampleFormat
     fileprivate var outChannel: AVChannelLayout
 
