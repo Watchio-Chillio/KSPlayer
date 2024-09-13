@@ -15,7 +15,7 @@ import AppKit
 
 public class KSMEPlayer: NSObject {
     private var loopCount = 1
-    private var playerItem: MEPlayerItem
+    private(set) public var playerItem: MEPlayerItem
     public let audioOutput: AudioOutput
     private var options: KSOptions
     private var bufferingCountDownTimer: Timer?

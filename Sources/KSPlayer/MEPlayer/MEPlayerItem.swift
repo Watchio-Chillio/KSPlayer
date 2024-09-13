@@ -35,7 +35,8 @@ public final class MEPlayerItem: Sendable {
     private var videoAudioTracks = [CapacityProtocol]()
     private var videoTrack: SyncPlayerItemTrack<VideoVTBFrame>?
     private var audioTrack: SyncPlayerItemTrack<AudioFrame>?
-    private(set) var assetTracks = [FFmpegAssetTrack]()
+  @Published
+  private(set) public var assetTracks = [FFmpegAssetTrack]()
     private var videoAdaptation: VideoAdaptationState?
     private var videoDisplayCount = UInt8(0)
     private var seekByBytes = false
