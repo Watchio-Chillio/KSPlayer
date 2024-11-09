@@ -305,6 +305,10 @@ open class KSPlayerLayer: NSObject {
     }
 
     open func pause() {
+      if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo as? [String: Any], let isLive = nowPlayingInfo[MPNowPlayingInfoPropertyIsLiveStream] as? Bool, isLive {
+        return
+      }
+      
         isAutoPlay = false
         player.pause()
         timer.fireDate = Date.distantFuture
