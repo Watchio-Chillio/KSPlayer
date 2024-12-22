@@ -9,6 +9,8 @@ import AVKit
 
 @available(tvOS 14.0, *)
 public class KSPictureInPictureController: AVPictureInPictureController {
+  public weak var playerViewController: UIViewController?
+
     private static var pipController: KSPictureInPictureController?
     private var originalViewController: UIViewController?
     private var view: KSPlayerLayer?
@@ -72,7 +74,7 @@ public class KSPictureInPictureController: AVPictureInPictureController {
         self.view = view
         #if canImport(UIKit)
         runOnMainThread { [weak self] in
-            guard let self, let viewController = view.player.view?.viewController else { return }
+            guard let self, let viewController = playerViewController ?? view.player.view?.viewController else { return }
 
             originalViewController = viewController
             if let navigationController = viewController.navigationController, navigationController.viewControllers.count == 1 {
