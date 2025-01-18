@@ -347,11 +347,11 @@ extension KSAVPlayer {
         let changeHandler: (AVPlayerItem, NSKeyValueObservedChange<Bool>) -> Void = { [weak self] _, _ in
             guard let self else { return }
             // 在主线程更新进度
-            if playerItem.isPlaybackBufferEmpty {
-                self.loadState = .loading
-            } else if playerItem.isPlaybackLikelyToKeepUp || playerItem.isPlaybackBufferFull {
-                self.loadState = .playable
-            }
+          if playerItem.isPlaybackLikelyToKeepUp || playerItem.isPlaybackBufferFull {
+            self.loadState = .playable
+          } else if playerItem.isPlaybackBufferEmpty {
+            self.loadState = .loading
+          }
         }
         bufferEmptyObservation = playerItem.observe(\.isPlaybackBufferEmpty, changeHandler: changeHandler)
         likelyToKeepUpObservation = playerItem.observe(\.isPlaybackLikelyToKeepUp, changeHandler: changeHandler)
