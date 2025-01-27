@@ -458,7 +458,7 @@ public extension KSOptions {
     static var firstPlayerType: MediaPlayerProtocol.Type = KSAVPlayer.self
     static var secondPlayerType: MediaPlayerProtocol.Type?
     /// 最低缓存视频时间
-    static var preferredForwardBufferDuration = 3.0
+    static var preferredForwardBufferDuration = 10.0
     /// 最大缓存视频时间
     static var maxBufferDuration = 30.0
     /// 是否开启秒开
