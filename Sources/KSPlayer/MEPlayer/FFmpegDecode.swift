@@ -79,11 +79,14 @@ class FFmpegDecode: DecodeProtocol {
                                     }
                                     closedCaptionsPacket.corePacket?.pointee.flags |= AV_PKT_FLAG_KEY
                                     closedCaptionsPacket.corePacket?.pointee.size = Int32(sideData.size)
-                                    let buffer = av_buffer_ref(sideData.buf)
-                                    closedCaptionsPacket.corePacket?.pointee.data = buffer?.pointee.data
-                                    closedCaptionsPacket.corePacket?.pointee.buf = buffer
-                                    closedCaptionsPacket.assetTrack = closedCaptionsTrack
-                                    subtitle.putPacket(packet: closedCaptionsPacket)
+                                    if let buf = sideData.buf, let buffer = av_buffer_ref(buf) {
+                                      closedCaptionsPacket.corePacket?.pointee.data = buffer.pointee.data
+                                      closedCaptionsPacket.corePacket?.pointee.buf = buffer
+                                      closedCaptionsPacket.assetTrack = closedCaptionsTrack
+                                      subtitle.putPacket(packet: closedCaptionsPacket)
+                                    } else {
+                                      KSLog("Warning: sideData.buf was nil or av_buffer_ref failed — skipping closed captions packet.")
+                                    }
                                 }
                             } else if sideData.type == AV_FRAME_DATA_SEI_UNREGISTERED {
                                 let size = sideData.size
