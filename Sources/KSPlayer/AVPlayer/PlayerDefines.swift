@@ -88,6 +88,17 @@ public enum DynamicRange: Int32 {
         }
         #endif
     }
+
+    var shouldUpdatePreferredDisplayCriteria: Bool {
+      switch self {
+        case .sdr:
+          return false
+        case .hdr10, .dolbyVision, .hlg:
+          return true
+        default:
+          return false
+      }
+    }
 }
 
 extension DynamicRange: CustomStringConvertible {

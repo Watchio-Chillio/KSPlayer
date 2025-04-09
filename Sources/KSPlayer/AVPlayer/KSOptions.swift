@@ -347,7 +347,7 @@ open class KSOptions {
         else {
             return
         }
-        if let dynamicRange = isDovi ? .dolbyVision : formatDescription?.dynamicRange {
+      if let dynamicRange = isDovi ? .dolbyVision : formatDescription?.dynamicRange, dynamicRange.shouldUpdatePreferredDisplayCriteria  {
             displayManager.preferredDisplayCriteria = AVDisplayCriteria(refreshRate: refreshRate, videoDynamicRange: dynamicRange.rawValue)
         }
         #endif
