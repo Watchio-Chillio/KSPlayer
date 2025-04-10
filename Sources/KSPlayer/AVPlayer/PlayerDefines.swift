@@ -26,6 +26,7 @@ public extension KSOptions {
 #else
 import AppKit
 import SwiftUI
+import AVKit
 
 public typealias UIView = NSView
 public typealias UIPasteboard = NSPasteboard
@@ -87,17 +88,6 @@ public enum DynamicRange: Int32 {
             return modes
         }
         #endif
-    }
-
-    var shouldUpdatePreferredDisplayCriteria: Bool {
-      switch self {
-        case .sdr:
-          return false
-        case .hdr10, .dolbyVision, .hlg:
-          return true
-        default:
-          return false
-      }
     }
 }
 
