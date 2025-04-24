@@ -109,10 +109,11 @@ class SyncPlayerItemTrack<Frame: MEFrame>: PlayerItemTrackProtocol, CustomString
         outputRenderQueue.shutdown()
     }
 
-    private var lastPacketBytes = Int32(0)
+    private var lastPacketBytes = Int64(0)
     private var lastPacketSeconds = Double(-1)
     var bitrate = Double(0)
     fileprivate func doDecode(packet: Packet) {
+      guard let corePacket = packet.corePacket else { return }
         if packet.isKeyFrame, packet.assetTrack.mediaType != .subtitle {
             let seconds = packet.seconds
             let diff = seconds - lastPacketSeconds
@@ -126,13 +127,12 @@ class SyncPlayerItemTrack<Frame: MEFrame>: PlayerItemTrackProtocol, CustomString
                 lastPacketSeconds = seconds
             }
         }
-        lastPacketBytes += packet.size
+        lastPacketBytes += Int64(packet.size)
+      
         let decoder = decoderMap.value(for: packet.assetTrack.trackID, default: makeDecode(assetTrack: packet.assetTrack))
 //        var startTime = CACurrentMediaTime()
-        decoder.decodeFrame(from: packet) { [weak self] result in
-            guard let self else {
-                return
-            }
+      decoder.decodeFrame(from: packet) { [weak self, weak decoder] result in
+            guard let self else { return }
             do {
 //                if packet.assetTrack.mediaType == .video {
 //                    print("[video] decode time: \(CACurrentMediaTime()-startTime)")
@@ -158,10 +158,15 @@ class SyncPlayerItemTrack<Frame: MEFrame>: PlayerItemTrackProtocol, CustomString
             } catch {
                 KSLog("Decoder did Failed : \(error)")
                 if decoder is VideoToolboxDecode {
-                    decoder.shutdown()
-                    self.decoderMap[packet.assetTrack.trackID] = FFmpegDecode(assetTrack: packet.assetTrack, options: self.options)
-                    KSLog("VideoCodec switch to software decompression")
-                    self.doDecode(packet: packet)
+                  if decoderMap[packet.assetTrack.trackID] === decoder {
+                    // 在回调里面直接掉用VTDecompressionSessionInvalidate，会卡住,所以要异步。
+                    DispatchQueue.global().async {
+                      decoder?.shutdown()
+                    }
+                    options.asynchronousDecompression = false
+                    decoderMap[packet.assetTrack.trackID] = nil
+                    KSLog("[video] VideoToolboxDecode fail. switch to ffmpeg decode")
+                  }
                 } else {
                     self.state = .failed
                 }
@@ -290,7 +295,7 @@ public extension Dictionary {
     }
 }
 
-protocol DecodeProtocol {
+protocol DecodeProtocol: AnyObject {
     func decode()
     func decodeFrame(from packet: Packet, completionHandler: @escaping (Result<MEFrame, Error>) -> Void)
     func doFlushCodec()
