@@ -192,6 +192,7 @@ open class KSPlayerLayer: NSObject {
     private var bufferedCount = 0
     private var shouldSeekTo: TimeInterval = 0
     private var startTime: TimeInterval = 0
+    private var retryCount: Int = 0
     public init(url: URL, isAutoPlay: Bool = KSOptions.isAutoPlay, options: KSOptions, delegate: KSPlayerLayerDelegate? = nil) {
         self.url = url
         self.options = options
@@ -427,6 +428,10 @@ extension KSPlayerLayer: MediaPlayerDelegate {
             startTime = 0
         }
         guard state.isPlaying else { return }
+
+      // Reset retry count
+      retryCount = 0
+
         if player.loadState == .playable {
             state = .bufferFinished
         } else {
@@ -447,6 +452,14 @@ extension KSPlayerLayer: MediaPlayerDelegate {
 
     public func finish(player: some MediaPlayerProtocol, error: Error?) {
         if let error {
+          if retryCount < 2 {
+            retryCount = retryCount + 1
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: { [weak self] in
+              self?.prepareToPlay()
+              self?.play()
+            })
+            return
+          }
             if type(of: player) != KSOptions.secondPlayerType, let secondPlayerType = KSOptions.secondPlayerType {
                 self.player = secondPlayerType.init(url: url, options: options)
                 return
