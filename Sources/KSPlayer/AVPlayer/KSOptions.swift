@@ -91,6 +91,8 @@ open class KSOptions {
     public var videoInterlacingType: VideoInterlacingType?
     private var videoClockDelayCount = 0
 
+    public var shouldDynamicallyUpdateDisplayCriteria = true
+
     public internal(set) var formatName = ""
     public internal(set) var prepareTime = 0.0
     public internal(set) var dnsStartTime = 0.0
@@ -333,7 +335,7 @@ open class KSOptions {
 
     @MainActor
   open func updateVideo(refreshRate: Float, isDovi: Bool, formatDescription: CMFormatDescription?) {
-    guard let formatDescription, #available(tvOS 17.0, *) else { return }
+    guard let formatDescription, shouldDynamicallyUpdateDisplayCriteria, #available(tvOS 17.0, *) else { return }
 #if os(tvOS) || os(xrOS)
     /**
      快速更改preferredDisplayCriteria，会导致isDisplayModeSwitchInProgress变成true。
